@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Визуализатор</string>
+    
+    <string name="menu_connect">Подключить</string>
+    <string name="menu_disconnect">Отключить</string>
+    <string name="menu_settings">Настройки</string>
+    <string name="menu_exit">Выход</string>
+    <string name="menu_open_project">Открыть проект</string>
+    <string name="menu_close_project">Закрыть проект</string>
+    
+    <string name="connection_success">Подключение к серверу %1$s установлено</string>
+	<string name="connection_fail">Подключение к серверу %1$s не установлено</string>
+	<string name="connection_aborted">Соединение с сервером %1$s разорвано</string>
+	
+	<string name="default_project_name">Визуализатор</string>
+    <string name="toolTipParameter"><b>Параметр</b></string>
+    <string name="toolTipValue"><b>Значение</b></string>
+    <string name="toolTipDesc"><b>Описание</b></string>
+    <string name="default_ip_address">192.168.0.1</string>
+    <string name="empty_string"/>
+    <string name="dialog_button_connect">Подключить</string>
+    <string name="dialog_button_save">Сохранить</string>
+    <string name="dialog_button_cancel">Отмена</string>
+    <string name="dialog_title">Сетевые параметры</string>
+</resources>

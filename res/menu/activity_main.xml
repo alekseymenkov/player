@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/menu_connection"
+        android:orderInCategory="300"
+        android:showAsAction="never"
+        android:title="@string/menu_connect">
+    </item>
+    <item
+        android:id="@+id/menu_settings"
+        android:orderInCategory="400"
+        android:showAsAction="never"
+        android:title="@string/menu_settings">
+    </item>
+    <item
+        android:id="@+id/menu_exit"
+        android:orderInCategory="500"
+        android:showAsAction="never"
+        android:title="@string/menu_exit">
+    </item>
+    <item android:id="@+id/menu_open_project" android:title="@string/menu_open_project" android:showAsAction="never" android:orderInCategory="100"></item>
+    <item android:id="@+id/menu_close_project" android:title="@string/menu_close_project" android:showAsAction="never" android:orderInCategory="200"></item>
+
+</menu>

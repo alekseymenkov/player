@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="0dp" >
+
+    <scroll_view.VScrollView
+        android:id="@+id/verticalScrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_margin="0dp"
+        android:fillViewport="true" >
+
+        <scroll_view.HScrollView
+            android:id="@+id/horizontalScrollView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_margin="0dp"
+            android:fillViewport="true" >
+
+            <FrameLayout
+                android:id="@+id/frameLayout"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_margin="0dp"
+                android:scrollbarAlwaysDrawVerticalTrack="true"
+                android:scrollbars="horizontal|vertical" >
+
+            </FrameLayout>
+        </scroll_view.HScrollView>
+    </scroll_view.VScrollView>
+    
+</FrameLayout> 
