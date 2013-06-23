@@ -25,4 +25,7 @@
     <string name="dialog_button_cancel">Отмена</string>
     <string name="dialog_title">Сетевые параметры</string>
     <string name="open_project_error">Ошибка при открытии проекта!</string>
+    <string name="processing_image">Обработка изображений</string>
+    <string name="load_images">Загрузка проекта</string>
+    <string name="repaint_thread_name">repaintWatcher</string>
 </resources>

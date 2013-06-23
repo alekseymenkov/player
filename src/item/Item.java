@@ -161,8 +161,7 @@ public class Item extends View {
         @Override
         public void onClick(View v) {
             if (mIsDataFromServer && mTooltipListener != null) {
-                mTooltipListener.generateTooltip(mElementID);
-                mTooltipListener.displayData(mElementID, mParametersString);
+                mTooltipListener.displayData(mElementID, mGroupID, mParametersString);
             }
         }
     };
@@ -178,6 +177,7 @@ public class Item extends View {
         mIsDataFromServer = true;
 
         mParametersValues.clear();
+        mParametersString.clear();
 
         // Преобразование byte[] в ArrayList<Boolean>
         Vector<Boolean> state = new Vector<Boolean>(mData.length);
@@ -192,8 +192,6 @@ public class Item extends View {
             }
         }
 
-
-
         // Количество зарегистрированных параметров в элементе
         ArrayList<ElementInterfaceParameter> mElementInterfaceParameters = mElementInterface.getParameters();
         ArrayList<Parameter> mElementLogicParameters = mElementLogic.getParameters();
@@ -206,7 +204,7 @@ public class Item extends View {
                 final int bitsInByte = 8;
                 // Определение границ данных, относящихся к текущему параметру
                 int startBit = (mElementInterfaceParameters.get(i).getStartByte() -
-                        mElementInterfaceParameters.get(i).getStartByte()) * bitsInByte +
+                        mElementInterface.getMinByte()) * bitsInByte +
                         mElementInterfaceParameters.get(i).getStartBit();
                 // Состояние основного параметра
                 // Копируем из массива набор битов, начиная с mainStartBit
@@ -218,9 +216,6 @@ public class Item extends View {
 
             mParametersValues.add(new ArrayList<Boolean>(temp));
 
-
-
-
             if (mElementLogicParameters.get(i).getParameterType() == ParameterType.Common) {
                 if (temp.size() == 0)
                     mParametersString.add("");
@@ -231,12 +226,7 @@ public class Item extends View {
             } else {
                 mParametersString.add("");
             }
-
-
-
         }
-
-
     }
 
 
@@ -288,7 +278,6 @@ public class Item extends View {
             int maxSideSize = width > height ? width : height;
 
             if (isFlap || isFlapDark) {
-                Log.d("MEASURE", "==========================================================");
                 int sign = 0;
                 int pointNumber = Integer.parseInt(mElementInterface.getExtraParameters().get(0).getValue());
                 if (pointNumber == 1)
@@ -305,8 +294,6 @@ public class Item extends View {
                 // Расчетные размеры
                 width = maxSideSize * 2;
                 height = maxSideSize * 2;
-
-                Log.d("MEASURE", "==========================================================");
             } else {
                 // Корректирующие значения смещения элемента на сцене (внешние координаты)
                 mElementOffsetX = (maxSideSize - width) / 2 ;
@@ -332,24 +319,13 @@ public class Item extends View {
 
         if (mElementInterface.getAngle() != 0) {
             if (mElementLogic.getElementLogicType() == ElementLogicType.Flap || mElementLogic.getElementLogicType() == ElementLogicType.FlapDark) {
-//                Paint paint = new Paint();
-//                paint.setStyle(Paint.Style.STROKE);
-//                paint.setColor(Color.BLUE);
-//                paint.setStrokeWidth(4);
-//                Log.d("MEASURE", "SIZE: " + getWidth() + ", " + getHeight());
-//                canvas.drawCircle(getWidth() / 2 + mCenterOffsetX, getHeight() / 2 + mCenterOffsetY, 125, paint);
-//                canvas.drawCircle(getWidth() / 2 + mCenterOffsetX, getHeight() / 2 + mCenterOffsetY, 100, paint);
-//                canvas.drawCircle(getWidth() / 2 + mCenterOffsetX, getHeight() / 2 + mCenterOffsetY, 75, paint);
+
                 canvas.rotate(mElementInterface.getAngle(), getWidth() / 2 + mCenterOffsetX, getHeight() / 2 + mCenterOffsetY);
             } else {
                 canvas.rotate(mElementInterface.getAngle(), getWidth() / 2, getHeight() / 2);
             }
         }
 
-//        if (Math.abs(1.0 - mScaleValue) > 1e-6)
-//        {
-//            //canvas.scale(mScaleValue, mScaleValue);
-//        }
 
 
         if (mElementLogic.getElementLogicType() == ElementLogicType.Common ||
@@ -370,13 +346,9 @@ public class Item extends View {
         }
 
         canvas.restore();
-//
-//        Paint paint = new Paint();
-//        paint.setStyle(Paint.Style.STROKE);
-//        paint.setColor(Color.RED);
-//        canvas.drawRect(new Rect(0, 0, getWidth() - 1, getHeight() - 1), paint);
-//        canvas.drawLine(getWidth() / 2, 0, getWidth() / 2, getHeight(), paint);
-//        canvas.drawLine(0, getHeight() / 2, getWidth(), getHeight() / 2, paint);
+
+        if (mTooltipListener.IsDialogShowing() && mTooltipListener.getGroupID() == mGroupID && mTooltipListener.getElementID() == mElementID)
+            mTooltipListener.displayData(mElementID, mGroupID, mParametersString);
     }
 
 
@@ -992,6 +964,7 @@ public class Item extends View {
 
                                         // Сохранение полученного числа
                                         drawingText = mParametersString.get(j)  + postfix;
+//                                        Log.e("DrawingText!", "j=" + j + ", text=" + drawingText + "; " + mParametersValues.get(j).toString());
 
                                         // Обработка неиспользуемого связанного параметра
                                         if (!interfaceParameter.get(parameter.getExtraParameter()).isUsed()) {

@@ -14,8 +14,8 @@ public class ElementInterface {
 	ArrayList<ElementInterfaceExtraParameter> mExtraParameters;
 	
 	// Диапазон запрашиваемых данных
-//	int mMinByte;
-//	int mMaxByte;
+	int mMinByte;
+	int mMaxByte;
 	
 	// Состояние элемента
 	ArrayList<Boolean> mState;
@@ -85,7 +85,10 @@ public class ElementInterface {
 	        if (currentMaxByte > maxByte)
 	        	maxByte = currentMaxByte;
 	    }
-	    
+
+        mMinByte = minByte;
+        mMaxByte = maxByte;
+
 	    // Формирование границ
 	    final int arrayListCapacity = 2;
 	    ArrayList<Integer> range = new ArrayList<Integer>(arrayListCapacity);
@@ -94,7 +97,11 @@ public class ElementInterface {
 
 	    return range;
 	}
-		
+
+    public int getMinByte() {
+        return mMinByte;
+    }
+
 //	public ArrayList<Integer> getStartBytes() {
 //		return mStartBytes;
 //	}

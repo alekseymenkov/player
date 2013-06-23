@@ -25,14 +25,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -178,7 +175,7 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
                 // Инициализация потока и слушателя, ответственных за перерисовку элементов по таймеру
                 mRepaintWatcher = new RepaintWatcher(mProject.getUnitsCount(), itemsCount);
                 mRepaintWatcher.setRepaintListener(mRepaintListenter);
-                mRepaintWatcherThread = new Thread(mRepaintWatcher, "repaintWatcher");
+                mRepaintWatcherThread = new Thread(mRepaintWatcher, getString(R.string.repaint_thread_name));
                 mRepaintWatcherThread.start();
 
                 // Установка слушателей для элементов
@@ -199,7 +196,7 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
                 }
 
                 // Запуск процедуры загрузки изображений
-                mAsyncImageProcessing = new AsyncImageProcessing(mCurrentProjectDirectory, mProject.getUnitsCount());
+                mAsyncImageProcessing = new AsyncImageProcessing(mCurrentProjectDirectory);
                 mAsyncImageProcessing.setOnTaskCompleteListener(this);
                 mAsyncImageProcessing.execute(mSceneSettings);
             } catch (IOException exception) {
@@ -266,7 +263,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
 
     @Override
     public void onBackPressed() {
-        Log.d("DEBUG", "Close the App");
         closeApplication();
     }
 
@@ -295,8 +291,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
 
         mIsProjectLoaded = true;
 
-        Log.d("Network", "Auto-connection in first tab, settings: " + mNetworkPreferences.isPreferencesCorrect());
-
         // Подключение первой вкладки
         if (mNetworkPreferences.isPreferencesCorrect())
             connectToServer(mNetworkPreferences.getServerAddress(), mNetworkPreferences.getPort());
@@ -315,14 +309,13 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
         private String mDirectory;
         private ProgressDialog mProgressDialog;
         private OnTaskCompleted mOnTaskCompleteListener;
-        ;
 
-        public AsyncImageProcessing(String directory, int filesCount) {
+        public AsyncImageProcessing(String directory) {
             mDirectory = directory + "/";
             // Инициализация GUI
             mProgressDialog = new ProgressDialog(mContext);
-            mProgressDialog.setTitle("Загрузка проекта");
-            mProgressDialog.setMessage("Обработка изображений");
+            mProgressDialog.setTitle(mContext.getString(R.string.load_images));
+            mProgressDialog.setMessage(mContext.getString(R.string.processing_image));
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setMax(200);
             mProgressDialog.setIndeterminate(false);
@@ -367,7 +360,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
                     try {
                         brd = BitmapRegionDecoder.newInstance(correctPath + ".png", true);
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                     mSceneSettings.get(k).setSize(brd.getWidth(), brd.getWidth());
@@ -409,7 +401,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
                         writer.flush();
                         writer.close();
                     } catch (IOException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
 
@@ -576,11 +567,9 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
             customWebView.getSettings().setSupportZoom(true);
             customWebView.getSettings().setDisplayZoomControls(true);
             customWebView.getSettings().setUseWideViewPort(true);
-            //			customWebView.getSettings().setLoadWithOverviewMode(true);
-
             customWebView.getSettings().setDefaultTextEncodingName("utf-8");
             customWebView.loadUrl("file://" + mSceneSettings.get(mPageNumber).getBackgroundHTML());
-            //customWebView.loadData("<html><body bgcolor=\"Black\"></body></html>","text/html", "utf-8");
+
             for (int i = 0; i < mItems.get(mPageNumber).size(); i++) {
                 Item item = mItems.get(mPageNumber).get(i);
                 customScrollView.addWidget(item, item.getXPosition(), item.getYPosition());
@@ -609,7 +598,7 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
 
     private void openProjectPickerDialog() {
         Intent intent = new Intent(this, FileChooserActivity.class);
-        intent.putExtra(FileChooserActivity._Theme, android.R.style.Theme_Dialog);
+        intent.putExtra(FileChooserActivity._FilterMode, IFileProvider.FilterMode.DirectoriesOnly);
         startActivityForResult(intent, REQ_CHOOSE_FILE);
     }
 
@@ -621,6 +610,7 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
                 if (resultCode == RESULT_OK) {
 
                     List<LocalFile> files = (List<LocalFile>) data.getSerializableExtra(FileChooserActivity._Results);
+                    assert files != null;
                     for (File f : files) {
                         openProject(f.getAbsoluteFile().toString());
                     }
@@ -696,81 +686,104 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
     // Слушатель всплывающей подсказки
     static TooltipListener mTooltipListener = new TooltipListener() {
 
+        private Dialog dialog;
+        private int mElementID;
+        private int mGroupID;
 
-
-        public void displayData(int elementID, ArrayList<String> parametersString) {
+        public void displayData(int elementID, int groupID, ArrayList<String> parametersString) {
 
             final int currentTab = mViewPager.getCurrentItem();
-
-            final Dialog dialog = new Dialog(mContext);
             final ElementInterface elementInterface = mItems.get(currentTab).get(elementID).getElementInterface();
-            dialog.setContentView(R.layout.tooltip);
-            dialog.setTitle(elementInterface.getElementName());
-            TableLayout table = (TableLayout) dialog.findViewById(R.id.tblTooltip);
 
+            if (dialog != null && dialog.isShowing()) {
+                final int TEXT_VIEW_POSITION = 1;
+                TableLayout table = (TableLayout) dialog.findViewById(R.id.tblTooltip);
+                int realParameterNum = 1;
+                for (int i = 0; i < elementInterface.getParameters().size(); i++) {
+                    if (!elementInterface.getParameters().get(i).isUsed())
+                        continue;
 
+                    TextView textView = (TextView) ((TableRow)table.getChildAt(realParameterNum)).getChildAt(TEXT_VIEW_POSITION);
+                    textView.setText(parametersString.get(i));
 
-            int realParameterNum = -1;
-            for (int i = -1; i < elementInterface.getParameters().size(); i++) {
+                    realParameterNum++;
+                }
+            } else {
+                dialog = new Dialog(mContext);
+                mGroupID = groupID;
+                mElementID = elementID;
+                dialog.setContentView(R.layout.tooltip);
+                dialog.setTitle(elementInterface.getElementName());
+                TableLayout table = (TableLayout) dialog.findViewById(R.id.tblTooltip);
 
-                if (i >= 0 && !elementInterface.getParameters().get(i).isUsed()) {
-                    continue;
+                int realParameterNum = -1;
+                for (int i = -1; i < elementInterface.getParameters().size(); i++) {
+
+                    if (i >= 0 && !elementInterface.getParameters().get(i).isUsed()) {
+                        continue;
+                    }
+
+                    TableRow tableRow = new TableRow(mContext);
+
+                    TextView bitTV = new TextView(mContext);
+                    bitTV.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                    bitTV.setBackgroundResource(android.R.drawable.edit_text);
+                    if (i  < 0) {
+                        bitTV.setText(R.string.toolTipParameter);
+                    } else {
+                        bitTV.setText(String.valueOf(realParameterNum + 1));
+                    }
+                    tableRow.addView(bitTV);
+
+                    TextView valueTV = new TextView(mContext);
+                    valueTV.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                    valueTV.setBackgroundResource(android.R.drawable.edit_text);
+                    if (i < 0) {
+                        valueTV.setText(R.string.toolTipValue);
+                    } else {
+                        valueTV.setText(parametersString.get(i));
+                    }
+                    tableRow.addView(valueTV);
+
+                    TextView descTV = new TextView(mContext);
+                    descTV.setBackgroundResource(android.R.drawable.edit_text);
+                    if (i < 0) {
+                        descTV.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
+                        descTV.setText(R.string.toolTipDesc);
+                    } else {
+                        descTV.setGravity(Gravity.CENTER_VERTICAL);
+                        descTV.setText(elementInterface.getParameters().get(i).getDescription());
+                    }
+                    tableRow.addView(descTV);
+
+                    table.addView(tableRow);
+
+                    realParameterNum++;
                 }
 
-                TableRow tableRow = new TableRow(mContext);
+                table.setColumnStretchable(2, true);
 
-                TextView bitTV = new TextView(mContext);
-                bitTV.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-                bitTV.setBackgroundResource(android.R.drawable.edit_text);
-                if (i  < 0) {
-                    bitTV.setText(R.string.toolTipParameter);
-                } else {
-                    bitTV.setText(String.valueOf(realParameterNum + 1));
-                }
-                tableRow.addView(bitTV);
-
-                TextView valueTV = new TextView(mContext);
-                valueTV.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-                valueTV.setBackgroundResource(android.R.drawable.edit_text);
-                if (i < 0) {
-                    valueTV.setText(R.string.toolTipValue);
-                } else {
-                    valueTV.setText(parametersString.get(i));
-                }
-                tableRow.addView(valueTV);
-
-                TextView descTV = new TextView(mContext);
-                descTV.setBackgroundResource(android.R.drawable.edit_text);
-                if (i < 0) {
-                    descTV.setGravity(Gravity.CENTER_VERTICAL | Gravity.CENTER_HORIZONTAL);
-                    descTV.setText(R.string.toolTipDesc);
-                } else {
-                    descTV.setGravity(Gravity.CENTER_VERTICAL);
-                    descTV.setText(elementInterface.getParameters().get(i).getDescription());
-                }
-                tableRow.addView(descTV);
-
-                table.addView(tableRow);
-
-                realParameterNum++;
+                dialog.show();
             }
+        }
 
-            table.setColumnStretchable(2, true);
 
-            dialog.show();
-
+        @Override
+        public boolean IsDialogShowing() {
+            return dialog != null && dialog.isShowing();
         }
 
         @Override
-        public void generateTooltip(int elementID) {
-            // TODO Auto-generated method stub
+        public int getElementID() {
+            return mElementID;
+        }
 
+        @Override
+        public int getGroupID() {
+            return mGroupID;
         }
     };
 
-
-    // TODO: Добавить действие на отключение (отключение, а не вызов окна)
-    // TODO: Отображение окна изменить внешний вид
 
 
     // Обработчик сообщений о состоянии подключения
@@ -778,34 +791,32 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
         public void handleMessage(android.os.Message msg) {
             int id = msg.what;
             SocketState socketState = (SocketState) msg.obj;
+            assert socketState != null;
             switch (socketState) {
                 case Connecting:
-                    Log.d("Network", "IOException, SocketState - Connecting");
                     break;
                 case Connected:
                     mMenu.findItem(R.id.menu_connection).setTitle(R.string.menu_disconnect);
                     Toast.makeText(mContext, String.format(mContext.getString(R.string.connection_success), mNetworkPreferences.getServerAddress()), Toast.LENGTH_SHORT).show();
-                    Log.d("Network", "IOException, SocketState - Connected");
                     break;
                 case Disconnected:
                     mMenu.findItem(R.id.menu_connection).setTitle(mContext.getString(R.string.menu_connect));
                     Toast.makeText(mContext, String.format(mContext.getString(R.string.connection_fail), mNetworkPreferences.getServerAddress()), Toast.LENGTH_SHORT).show();
                     resetItemsState(id);
                     disconnectFromServer(id);
-                    Log.d("Network", "IOException, SocketState - Disconnected");
                     break;
                 case Aborted:
                     mMenu.findItem(R.id.menu_connection).setTitle(R.string.menu_connect);
                     Toast.makeText(mContext, String.format(mContext.getString(R.string.connection_aborted), mNetworkPreferences.getServerAddress()), Toast.LENGTH_SHORT).show();
                     resetItemsState(id);
                     disconnectFromServer(id);
-                    Log.d("Network", "IOException, SocketState - Aborted");
                     break;
             }
         }
 
         ;
     };
+
 
     private static void resetItemsState(int id) {
 
@@ -843,29 +854,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
             }
         }
 
-        ;
-    };
-
-
-    OnTouchListener onWebViewTouchListener = new OnTouchListener() {
-
-        float mScaleValue = 0.0f;
-
-        @Override
-        public boolean onTouch(View view, MotionEvent event) {
-
-            float scaleValue = ((WebView) view).getScale();
-            if (Math.abs(scaleValue - mScaleValue) > 1e-6) {
-                mScaleValue = scaleValue;
-
-                for (int i = 0; i < 48; i++) {
-                    //					mCustomScrollView.changeView(mScaleValue, i);
-                    //										mItems.get(i).setScaleValue(mScaleValue);
-                    //										mItems.get(i).requestLayout();
-                }
-            }
-            return false;
-        }
     };
 
 
@@ -886,7 +874,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
         // Текущая вкладка
         final int currentTab = mViewPager.getCurrentItem();
 
-        Log.d("Network", "Options menu: " + ((mNetwork.get(currentTab) != null && mNetwork.get(currentTab).isConnected()) ? "disconnect" : "connect"));
         MenuItem item = menu.findItem(R.id.menu_connection);
         if (mNetwork.get(currentTab) != null && mNetwork.get(currentTab).isConnected())
             item.setTitle(R.string.menu_disconnect);
@@ -904,9 +891,7 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
 
             // Открытие проекта
             case R.id.menu_open_project:
-                Intent intent = new Intent(this, FileChooserActivity.class);
-                intent.putExtra(FileChooserActivity._FilterMode, IFileProvider.FilterMode.DirectoriesOnly);
-                startActivityForResult(intent, REQ_CHOOSE_FILE);
+                openProjectPickerDialog();
                 break;
 
             // Закрытие проекта
@@ -1003,7 +988,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
 
         // Текущая открытая вкладка
         final int currentTab = mViewPager.getCurrentItem();
-        Log.d("ViewPager", "Connect to server: " + currentTab);
 
         // Создание нового сетевого класса
         Network network = new Network(currentTab);
@@ -1022,8 +1006,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
     private static void disconnectFromServer(int id) {
 
         if (!mIsProjectLoaded) return;
-
-        Log.d("ViewPager", "Disconnect from server: " + id);
 
         // Закрытие текущей сетевой сессии
         // TODO: Рефакторинг. Два раза вызывается участок кода при ручном отключении
