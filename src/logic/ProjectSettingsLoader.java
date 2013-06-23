@@ -12,7 +12,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.os.Environment;
-import android.util.Log;
+
 
 public class ProjectSettingsLoader extends DefaultHandler {
 
@@ -60,9 +60,8 @@ public class ProjectSettingsLoader extends DefaultHandler {
 		SAXParser parser;
 		parser = factory.newSAXParser();
 		parser.parse(file, this);
-		
-		return;
-	}
+
+    }
 
 
 	public void characters(char[] ch, int start, int length)
@@ -73,29 +72,25 @@ public class ProjectSettingsLoader extends DefaultHandler {
 		     mUnitsCount = Integer.parseInt(new String(ch, start, length));
 		 else if (mCurrentElement.equals(PROJECT_NAME))
 			 mProjectName = new String(ch, start, length);
-		
-		return;
-	}
+
+    }
 
 
 	public void endElement(String uri, String localName, String name)
 			throws SAXException {
 		super.endElement(uri, localName, name);
 		mCurrentElement = "";
-		return;
-	}
+    }
 
 
 	public void startDocument() throws SAXException {
 		super.startDocument();
-		return;
-	}
+    }
 
 
 	public void startElement(String uri, String localName, String name,
 			Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, name, attributes);
 		mCurrentElement = name;
-		return;
-	}
+    }
 }

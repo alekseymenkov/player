@@ -1,25 +1,17 @@
 package scroll_view;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import knaapo.player.R;
 import android.content.Context;
-import android.os.Environment;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ScrollView;
-import android.widget.FrameLayout.LayoutParams;
+
+import java.util.ArrayList;
+
+import knaapo.player.R;
 
 
 public class CustomScrollView extends FrameLayout {
@@ -30,9 +22,8 @@ public class CustomScrollView extends FrameLayout {
 	ScrollView mVerticalScrollView;
 	HorizontalScrollView mHorizontalScrollView;
 	FrameLayout mFrameLayout;
-	CustomScrollView mCustomScrollView = this;
 
-	ArrayList<View> mWidgets;
+    ArrayList<View> mWidgets;
 	ArrayList<Integer> mLeft;
 	ArrayList<Integer> mTop;
 
@@ -78,8 +69,8 @@ public class CustomScrollView extends FrameLayout {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		float currentX = 0;
-		float currentY = 0;
+		float currentX;
+		float currentY;
 
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN:
@@ -126,8 +117,7 @@ public class CustomScrollView extends FrameLayout {
 
 		mFrameLayout.addView(view, frameLayoutParams);
 
-		return;
-	}
+    }
 
 	
 	public void changeView(float scaleValue, int viewID) {
@@ -139,23 +129,20 @@ public class CustomScrollView extends FrameLayout {
 		frameLayoutParams.setMargins((int)(mLeft.get(viewID) * scaleValue), (int)(mTop.get(viewID) * scaleValue), rightMargin, bottomMargin);
 		
 		mWidgets.get(viewID).setLayoutParams(frameLayoutParams);
-		
-		return;
-	}
+
+    }
 	
 
 	public void removeWidget(View view) {
 
 		mWidgets.remove(mWidgets.indexOf(view));
 
-		return;
-	}
+    }
 	
 	
 	@Override
 	public void removeAllViews() {
 		super.removeAllViews();
 		mWidgets.clear();
-		return;
-	}
+    }
 }

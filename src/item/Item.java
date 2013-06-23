@@ -31,7 +31,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
-import android.util.Log;
+
 import android.view.View;
 
 
@@ -117,19 +117,6 @@ public class Item extends View {
         setOnClickListener(mOnClickListener);
     }
 
-
-//    public Item(Context context, AttributeSet attrs, int elementID, int groupID, ElementLogic elementLogic, ElementInterface elementInterface) {
-//        super(context, attrs);
-//
-//        initialize(elementID, groupID, elementLogic, elementInterface);
-//    }
-
-
-//    public Item(Context context, AttributeSet attrs, int defStyle, int elementID, int groupID, ElementLogic elementLogic, ElementInterface elementInterface) {
-//        super(context, attrs, defStyle);
-//
-//        initialize(elementID, groupID, elementLogic, elementInterface);
-//    }
 
     public void setRepaintListener(RepaintListener repaintListener) {
         mRepaintListener = repaintListener;
@@ -854,7 +841,7 @@ public class Item extends View {
 
             // Новый угол для поворота фигуры
             int newAngle = 0;
-            int correctionAngle = 0;
+            int correctionAngle;
 
             // Фигура для перерисовки
             Figure figure = figures.get(i);
@@ -1234,7 +1221,7 @@ public class Item extends View {
                                boolean isSigned) {
 
         int number = 0;
-        int maxNumber = 0;
+        int maxNumber;
 
         // Защита от дурака
         if (numberBits.size() == 0)

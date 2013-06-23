@@ -3,7 +3,7 @@ package network;
 import java.net.Socket;
 import java.io.*;
 
-import android.util.Log;
+
 
 
 
@@ -76,7 +76,6 @@ public class Network implements Runnable  {
 			mPackageSender = new PackageSender(mSocket);
 			mPackageReader = new PackageReader(mID, mSocket);
 		} catch (IOException e) {
-            Log.d("Network", "IOException, SocketState - Disconnected");
 			// Состояние сети - "Подключение разорвано"
 			changeNetworkState(SocketState.Disconnected);
 			e.printStackTrace();
@@ -120,10 +119,7 @@ public class Network implements Runnable  {
 	
 	
 	public boolean isConnected() {
-		if (mSocket != null)
-			return mSocket.isConnected();
-		else
-			return false;
+        return mSocket != null && mSocket.isConnected();
 	}
 
 
@@ -141,27 +137,23 @@ public class Network implements Runnable  {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return;
-	}
+    }
 
 
 	// Установка слушателя для данных о режимах работы БИНС
 	public void setNetworkListener(NetworkListener networkListener) {
 		mNetworkListener = networkListener;
-		return;
-	}
+    }
 
 
 	// Установка слушателя для отслеживания работы сети
 	public void setSocketStateChangeListener(SocketStateChangeListener socketStateChangeListener) {
-		mSocketStateChangeListener = socketStateChangeListener;		
-		return;
-	}
+		mSocketStateChangeListener = socketStateChangeListener;
+    }
 
 
 	private void changeNetworkState(SocketState state) {
 		if (mSocketStateChangeListener != null)
 			mSocketStateChangeListener.OnChangeSocketState(mID, state);
-		return;
-	}
+    }
 }

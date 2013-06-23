@@ -11,7 +11,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import android.util.Log;
+
 
 public class SceneSettingsLoader extends DefaultHandler {
 
@@ -40,8 +40,7 @@ public class SceneSettingsLoader extends DefaultHandler {
 	public void setFile(String directory, int sceneNumber) {
 		mDirectory = directory + "/settings";
 		mSceneNumber = sceneNumber;
-		return;
-	}
+    }
 
 	
 
@@ -56,9 +55,8 @@ public class SceneSettingsLoader extends DefaultHandler {
 		SAXParser parser;
 		parser = factory.newSAXParser();
 		parser.parse(file, this);
-		
-		return;
-	}
+
+    }
 
 	
 
@@ -80,9 +78,8 @@ public class SceneSettingsLoader extends DefaultHandler {
 		     mSceneName = new String(ch, start, length);
 		 else if (mCurrentElement.equals(MMF_NAME))
 			 mMMFName = new String(ch, start, length);
-		 
-		return;
-	}
+
+    }
 
 
 	
@@ -90,15 +87,13 @@ public class SceneSettingsLoader extends DefaultHandler {
 			throws SAXException {
 		super.endElement(uri, localName, name);
 		mCurrentElement = "";
-		return;
-	}
+    }
 
 	
 
 	public void startDocument() throws SAXException {
 		super.startDocument();
-		return;
-	}
+    }
 
 
 	
@@ -106,8 +101,7 @@ public class SceneSettingsLoader extends DefaultHandler {
 			Attributes attributes) throws SAXException {
 		super.startElement(uri, localName, name, attributes);
 		mCurrentElement = name;
-		return;
-	}
+    }
 
 
 

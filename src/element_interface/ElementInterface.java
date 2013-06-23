@@ -2,7 +2,7 @@ package element_interface;
 
 import java.util.ArrayList;
 
-import android.util.Log;
+
 
 import parameter.ParameterType;
 
@@ -63,28 +63,25 @@ public class ElementInterface {
 
 	    int minByte = Integer.MAX_VALUE;
 	    int maxByte = Integer.MIN_VALUE;
-	    
-	    for (int i = 0; i < mParameters.size(); i++)
-	    {
-	    	ElementInterfaceParameter parameter = mParameters.get(i);
-	    	
-	        if (!parameter.isUsed())
-	            continue;
 
-	        
-	        if (parameter.getStartByte() < minByte)
-	        	minByte = parameter.getStartByte();
+        for (ElementInterfaceParameter parameter : mParameters) {
+            if (!parameter.isUsed())
+                continue;
 
-	        int bitsCount = 0;
-	        if (parameter.getType() != ParameterType.Number)
-	            bitsCount = parameter.getBitsCount();				// TODO: Тут было значение количества бит из ElementLogic. Если будет работать без него - объединить строки
-	        else if (parameter.getType() != ParameterType.Number)
-	            bitsCount = parameter.getBitsCount();
 
-	        int currentMaxByte = parameter.getStartByte() + (parameter.getStartBit() + bitsCount + partOfByteSize) / byteSize;
-	        if (currentMaxByte > maxByte)
-	        	maxByte = currentMaxByte;
-	    }
+            if (parameter.getStartByte() < minByte)
+                minByte = parameter.getStartByte();
+
+            int bitsCount = 0;
+            if (parameter.getType() != ParameterType.Number)
+                bitsCount = parameter.getBitsCount();                // TODO: Тут было значение количества бит из ElementLogic. Если будет работать без него - объединить строки
+            else if (parameter.getType() != ParameterType.Number)
+                bitsCount = parameter.getBitsCount();
+
+            int currentMaxByte = parameter.getStartByte() + (parameter.getStartBit() + bitsCount + partOfByteSize) / byteSize;
+            if (currentMaxByte > maxByte)
+                maxByte = currentMaxByte;
+        }
 
         mMinByte = minByte;
         mMaxByte = maxByte;

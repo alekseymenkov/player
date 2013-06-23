@@ -14,7 +14,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import android.os.Environment;
-import android.util.Log;
+
 
 
 public class ElementInterfaceLoader extends DefaultHandler{
@@ -58,8 +58,7 @@ public class ElementInterfaceLoader extends DefaultHandler{
 	public void setFile(String directory, int sceneNumber) {
 		mDirectory = directory  + "/settings";
 		mSceneNumber = sceneNumber;
-		return;
-	}
+    }
 	
 	
 	
@@ -79,9 +78,8 @@ public class ElementInterfaceLoader extends DefaultHandler{
 		SAXParser parser;
 		parser = factory.newSAXParser();
 		parser.parse(file, this);
-		
-		return;
-	}
+
+    }
 
 
 	public void characters(char[] ch, int start, int length)
@@ -89,8 +87,7 @@ public class ElementInterfaceLoader extends DefaultHandler{
 		super.characters(ch, start, length);
 		mStringBuilder.append(ch, start, length);
 
-		return;
-	}
+    }
 
 
 	public void endElement(String uri, String localName, String name)
@@ -105,8 +102,7 @@ public class ElementInterfaceLoader extends DefaultHandler{
 
 		mStringBuilder.setLength(0);
 
-		return;
-	}
+    }
 
 
 	public void startDocument() throws SAXException {
@@ -114,8 +110,7 @@ public class ElementInterfaceLoader extends DefaultHandler{
 		mElements = new ArrayList<ElementInterface>();
 		mStringBuilder = new StringBuilder();
 
-		return;
-	}
+    }
 
 
 	public void startElement(String uri, String localName, String name,
@@ -168,6 +163,5 @@ public class ElementInterfaceLoader extends DefaultHandler{
 			mExtraParameters.add(new ElementInterfaceExtraParameter(value));
 		}
 
-		return;
-	}
+    }
 }
