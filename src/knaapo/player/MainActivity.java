@@ -203,6 +203,7 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
                 mAsyncImageProcessing.setOnTaskCompleteListener(this);
                 mAsyncImageProcessing.execute(mSceneSettings);
             } catch (IOException exception) {
+                Toast.makeText(this, getString(R.string.open_project_error), Toast.LENGTH_LONG).show();
                 exception.printStackTrace();
             }
         }
@@ -273,7 +274,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
     @Override
     public void onTaskCompleted() {
 
-        Log.d("COMMON", "onTaskCompleted! Value - " + mIsProjectLoaded);
         // Инициализация ViewPager, подключение адаптера с фрагментами и слушателя OnPageSelected
         mViewPager = (ViewPager) findViewById(R.id.pager);
         mViewPager.setOffscreenPageLimit(10);
@@ -284,8 +284,6 @@ public class MainActivity extends FragmentActivity implements TabListener, OnTas
                 // Когда пользователь переключается между вкладками, выбор связанной вкладки
                 // В принципе, мы можем так же использовать ActionBar.Tab#select(), если у нас есть ссылка на tab.
                 mActionBar.setSelectedNavigationItem(position);
-
-                Log.d("Network", "Auto-connection in onPageSelected: " + position + ", settings: " + mNetworkPreferences.isPreferencesCorrect());
 
                 if (mNetwork.get(position) == null || !mNetwork.get(position).isConnected())
                     if (mNetworkPreferences.isPreferencesCorrect())

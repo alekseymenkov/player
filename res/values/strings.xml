@@ -24,4 +24,5 @@
     <string name="dialog_button_save">Сохранить</string>
     <string name="dialog_button_cancel">Отмена</string>
     <string name="dialog_title">Сетевые параметры</string>
+    <string name="open_project_error">Ошибка при открытии проекта!</string>
 </resources>

@@ -70,11 +70,9 @@ public class ElementInterfaceLoader extends DefaultHandler{
 			return;
 		
 		// Получение пути к SD
-		File file = Environment.getExternalStorageDirectory();
-		file = new File(mDirectory + "/" + "elements" + mSceneNumber + ".xml");
-
-		if (!file.exists())
-			return;
+		File file = new File(mDirectory + "/" + "elements" + mSceneNumber + ".xml");
+        if (!file.exists())
+            throw new IOException("Settings file isn't exist!");
 		
 
 		SAXParserFactory factory = SAXParserFactory.newInstance();

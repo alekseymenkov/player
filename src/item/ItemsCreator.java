@@ -52,7 +52,10 @@ public class ItemsCreator {
 		for (ElementInterface elementInterface : elements) {
 			String moduleName = elementInterface.getModuleName();
 			ElementLogic elementLogic = mElementLogicLoader.loadElementLogic(moduleName);
-			
+
+            if (elementLogic == null)
+                continue;
+
 			Item item = new Item(mContext, i, groupID, elementLogic, elementInterface);
 			item.setPosition(elementInterface.getX(), elementInterface.getY());
 			items.add(item);

@@ -49,8 +49,8 @@ public class SceneSettingsLoader extends DefaultHandler {
 
 		// Получение пути к файлу
 		File file = new File(mDirectory + "/" + "scene" + mSceneNumber + ".xml");
-		if (!file.exists())
-			return;
+        if (!file.exists())
+            throw new IOException("Settings file isn't exist!");
 		
 		SAXParserFactory factory = SAXParserFactory.newInstance();
 		SAXParser parser;
